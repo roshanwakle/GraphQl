@@ -1,9 +1,9 @@
 const bodyParser = require("body-parser");
 const express = require("express");
-const {graphqlHTTP} = require("express-graphql"); 
+const { graphqlHTTP } = require("express-graphql");
 const { buildSchema } = require("graphql");
 
-
+const events = [];
 
 const app = express();
 
@@ -13,11 +13,19 @@ app.use(
   "/graphql",
   graphqlHTTP({
     schema: buildSchema(`
+    type Event {
+        name:String!
+        title:String!
+    }
+    input EventInput{
+        name:String!
+        title:String!
+    }
     type RootQuery{
-       events:[String!]!
+       events:[Event!]!
     }
     type RootMutation{
-       createEvent(name:String):String
+       createEvent(eventInput:EventInput):Event
     }
     schema {
         query:RootQuery
@@ -26,17 +34,23 @@ app.use(
     `),
     rootValue: {
       events: () => {
-        return [`Roshan`];
+        return events;
       },
     },
     createEvent: (args) => {
-      const eventName = args.name;
-      return eventName;
+      const event = {
+        name: args.eventInput.name,
+        title: args.eventInput.title,
+      };
+      console.log(args);
+      events.push(event);
+      console.log("====================================");
+      console.log("====================================");
+      return event;
     },
     graphiql: true,
   })
 );
-
 
 app.listen(4000, () => {
   console.log("server connected succesfully..");
