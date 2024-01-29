@@ -1,9 +1,9 @@
 const bodyParser = require("body-parser");
+const title =require( './model');
 const express = require("express");
 const { graphqlHTTP } = require("express-graphql");
 const { buildSchema } = require("graphql");
-
-const events = [];
+const dbConnection= require("./db")
 
 const app = express();
 
@@ -38,19 +38,19 @@ app.use(
       },
     },
     createEvent: (args) => {
-      const event = {
+      
+      const data =new title({
         name: args.eventInput.name,
         title: args.eventInput.title,
-      };
-      console.log(args);
-      events.push(event);
-      console.log("====================================");
-      console.log("====================================");
-      return event;
+      })
+      data.save()
+      return {...data._doc}
     },
     graphiql: true,
   })
 );
+
+dbConnection();
 
 app.listen(4000, () => {
   console.log("server connected succesfully..");
